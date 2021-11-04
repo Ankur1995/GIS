@@ -1,0 +1,79 @@
+---
+title: "Tutorial 4"
+author: "Ankur"
+date: "29/10/2021"
+output: html_document
+---
+Import library data
+```{r}
+library(raster)
+library(here)
+library(tidyverse)
+library(dplyr)
+library(maptools)
+library(RColorBrewer)
+library(classInt)
+library(sp)
+library(rgeos)
+library(tmap)
+library(tmaptools)
+library(sf)
+library(rgdal)
+library(geojsonio)
+library(readr)
+library(janitor)
+```
+
+
+Import CSV data set
+```{r}
+csv<-read_csv(here::here("..","..","Week4","GIS_CODE","Gender Inequality Index (GII).csv"),
+              locale=locale(encoding="latin1"),
+              na="..", skip=5,col_select = c(1:3,5,7,9,11,13,15,17,19,21,23,25,27)
+              ) %>% clean_names()
+
+spec(csv)
+```
+
+
+Import shapefile
+```{r}
+shp<-st_read("../../Week4/GIS_CODE/World_Countries_(Generalized)/World_Countries__Generalized_.shp")
+```
+
+Create difference data set
+```{r}
+sapply(csv,class)
+
+csv <- csv %>%
+  mutate(Difference_2010_2019 = x2019-x2010)
+```
+
+
+Join CSV and ShapefileData
+```{r}
+shp<-shp %>%
+   left_join(., 
+            csv,
+            by = c("COUNTRY" = "country"))
+```
+
+Plot joined data
+
+# Murray's Edit
+
+This is a way Adam showed me of creating the map where you can control the number of colour categories so that the map is more defined. I think tm_shape and tm_polygons are more sophisticated versions of qtm
+```{r}
+#tmap_mode("plot")
+#qtm(shp, 
+    #fill = "Difference_2010_2019", fill.title = "Difference in HDI between 2010 and 2019")
+
+tm_shape(shp) +
+  tm_polygons(
+    col = "Difference_2010_2019",
+    palette="RdYlGn", #Red, Yellow, Green Pallette
+    style="pretty", #Pretty is one of the colouring styles
+    n=8, #Sets eight colour categories
+    midpoint = 0.1) #The value for the bland colour between yellow and green
+
+```
