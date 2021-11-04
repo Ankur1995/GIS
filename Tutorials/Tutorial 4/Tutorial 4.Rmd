@@ -6,21 +6,11 @@ output: html_document
 ---
 Import library data
 ```{r}
-library(raster)
 library(here)
 library(tidyverse)
 library(dplyr)
-library(maptools)
-library(RColorBrewer)
-library(classInt)
-library(sp)
-library(rgeos)
 library(tmap)
-library(tmaptools)
 library(sf)
-library(rgdal)
-library(geojsonio)
-library(readr)
 library(janitor)
 ```
 
@@ -38,7 +28,7 @@ spec(csv)
 
 Import shapefile
 ```{r}
-shp<-st_read("World_Countries_(Generalized)/World_Countries__Generalized_.shp")
+shp<-st_read(here("World_Countries_(Generalized)","World_Countries__Generalized_.shp"))
 ```
 
 Create difference data set
@@ -63,5 +53,14 @@ Plot joined data
 tmap_mode("plot")
 qtm(shp, 
     fill = "Difference_2010_2019", fill.title = "Difference in HDI between 2010 and 2019")
-
+#Added by Yulin
+map <- tm_shape(shp) + 
+  tm_polygons("Difference_2010_2019", 
+              style="pretty",
+              palette="-YlOrRd", n = 5,
+              midpoint=-0.2,
+              title="Difference in HDI between 2010 and 2019",
+              alpha = 0.5) +
+  tm_layout(title="Fork Map", legend.outside = TRUE, legend.position = c("right", "bottom"))
+map
 ```
